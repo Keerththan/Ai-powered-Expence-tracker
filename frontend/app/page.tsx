@@ -1,22 +1,39 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export default function Home() {
+  const { user, loading } = useAuthStore();
   const router = useRouter();
 
-  // Auto redirect to dashboard after 2 seconds
+  // Redirect to dashboard if already logged in
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (!loading && user) {
       router.push("/dashboard");
-    }, 2000);
-
-    return () => clearTimeout(timer);
-  }, [router]);
+    }
+  }, [user, loading, router]);
 
   const goToDashboard = () => {
     router.push("/dashboard");
   };
+
+  const goToLogin = () => {
+    router.push("/login");
+  };
+
+  const goToRegister = () => {
+    router.push("/register");
+  };
+
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
@@ -55,18 +72,32 @@ export default function Home() {
           </div>
         </div>
 
-        {/* CTA Button */}
-        <button
-          onClick={goToDashboard}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
-        >
-          Get Started →
-        </button>
-
-        {/* Auto redirect message */}
-        <p className="mt-6 text-gray-500 text-sm">
-          Redirecting to dashboard in 2 seconds...
-        </p>
+        {/* Action Buttons */}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <button
+              onClick={goToRegister}
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200"
+            >
+              Get Started Free →
+            </button>
+            <button
+              onClick={goToLogin}
+              className="bg-white text-gray-700 border-2 border-gray-200 px-8 py-4 rounded-lg font-semibold text-lg shadow-lg hover:bg-gray-50 transform hover:scale-105 transition-all duration-200"
+            >
+              Sign In
+            </button>
+          </div>
+          
+          {user && (
+            <button
+              onClick={goToDashboard}
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Go to Dashboard →
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
