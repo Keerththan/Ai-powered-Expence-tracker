@@ -3,13 +3,18 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "dev-simple": "node --watch server-simple.js",
+    "test-server": "node test-server.js",
+    "test-services": "node test-services.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "@supabase/supabase-js": "^2.80.0",
     "cors": "^2.8.5",
