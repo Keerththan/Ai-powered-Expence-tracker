@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS expenses (
   date DATE NOT NULL,
   payment_method TEXT,
   file_url TEXT,
+  extracted_text TEXT, -- Store OCR extracted text
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
