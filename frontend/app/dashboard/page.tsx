@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import UploadForm from "@/components/UploadForm";
-import ExpenseChat from "./ExpenseChat";
+import ExpenseChat from "./ExpenseChatNew";
 import { useExpenseStore } from "@/store/useExpenseStore";
 import { Expense } from "@/types/expense";
 

@@ -27,6 +27,7 @@ export interface ChatMessage {
   question: string;
   answer: string;
   timestamp: string;
+  isBot?: boolean;
 }
 
 export interface UploadResponse {
