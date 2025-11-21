@@ -51,7 +51,7 @@ export default function UploadForm({ userId }: { userId: string }) {
       formData.append("user_id", userId);
 
       const response = await axios.post<UploadResponse>(
-        "http://localhost:5000/upload", 
+        "http://localhost:5000/api/upload", 
         formData,
         {
           headers: {

@@ -19,6 +19,7 @@ export interface ExpenseStore {
   addExpense: (expense: Expense) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  fetchExpenses: (userId: string) => Promise<void>;
 }
 
 export interface ChatMessage {

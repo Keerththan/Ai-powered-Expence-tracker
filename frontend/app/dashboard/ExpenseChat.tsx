@@ -1,14 +1,16 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { useAuthStore } from "@/store/useAuthStore";
 import { ChatMessage } from "@/types/expense";
 
-export default function ExpenseChat({ userId }: { userId: string }) {
+export default function ExpenseChat() {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuthStore();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -50,8 +52,8 @@ export default function ExpenseChat({ userId }: { userId: string }) {
     setQuestion(""); // Clear input
 
     try {
-      const response = await axios.post("http://localhost:5000/chat", {
-        user_id: userId,
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/chat`, {
+        user_id: user?.id,
         question: questionToAsk,
       }, {
         timeout: 15000, // 15 second timeout
@@ -65,9 +67,16 @@ export default function ExpenseChat({ userId }: { userId: string }) {
         timestamp: new Date().toISOString()
       };
 
+      // Update the user message with the AI response
       setMessages(prev => {
         const newMessages = [...prev];
-        newMessages[newMessages.length - 1] = { ...userMessage, answer: response.data.answer };
+        const lastMessageIndex = newMessages.length - 1;
+        if (lastMessageIndex >= 0) {
+          newMessages[lastMessageIndex] = { 
+            ...newMessages[lastMessageIndex], 
+            answer: response.data.answer 
+          };
+        }
         return newMessages;
       });
 

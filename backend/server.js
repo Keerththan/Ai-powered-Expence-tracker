@@ -4,6 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import uploadRoute from "./routes/upload.js";
 import chatRoute from "./routes/chat.js";
+import expensesRoute from "./routes/expenses.js";
 
 dotenv.config();
 
@@ -19,8 +20,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/upload", uploadRoute);
-app.use("/chat", chatRoute);
+app.use("/api/upload", uploadRoute);
+app.use("/api/chat", chatRoute);
+app.use("/api/expenses", expensesRoute);
 
 // Health check endpoint
 app.get("/health", (req, res) => {

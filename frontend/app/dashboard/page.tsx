@@ -9,7 +9,7 @@ import { Expense } from "@/types/expense";
 
 export default function DashboardPage() {
   const { user, loading: authLoading, signOut } = useAuthStore();
-  const { expenses, loading: expenseLoading, error: expenseError } = useExpenseStore();
+  const { expenses, loading: expenseLoading, error: expenseError, fetchExpenses } = useExpenseStore();
   const router = useRouter();
 
   // Redirect to login if not authenticated
@@ -18,6 +18,14 @@ export default function DashboardPage() {
       router.push('/login');
     }
   }, [user, authLoading, router]);
+
+  // Fetch user expenses when authenticated
+  useEffect(() => {
+    if (user && !authLoading) {
+      console.log('🔄 Loading user expenses...');
+      fetchExpenses(user.id);
+    }
+  }, [user, authLoading, fetchExpenses]);
 
   // Show loading while checking auth
   if (authLoading) {
