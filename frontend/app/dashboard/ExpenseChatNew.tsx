@@ -10,17 +10,38 @@ export default function ExpenseChat() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [scrollLocked, setScrollLocked] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   const { user } = useAuthStore();
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Only scroll if not locked and user is near bottom
+    if (scrollLocked) return;
+    
+    const chatContainer = chatContainerRef.current;
+    if (chatContainer) {
+      const { scrollTop, scrollHeight, clientHeight } = chatContainer;
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 50;
+      
+      if (isNearBottom || messages.length <= 2) {
+        setTimeout(() => {
+          messagesEndRef.current?.scrollIntoView({ 
+            behavior: "smooth", 
+            block: "end"
+          });
+        }, 100);
+      }
+    }
   };
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping]);
+    // Only auto-scroll for new complete messages
+    if (!isLoading && !isTyping) {
+      scrollToBottom();
+    }
+  }, [messages.length, isLoading, isTyping]);
 
   // Welcome message on first load
   useEffect(() => {
@@ -58,12 +79,12 @@ export default function ExpenseChat() {
             ? { ...msg, answer: text.substring(0, index + 1) }
             : msg
         ));
-        index++;
+        index += 3; // Speed up typing (3 characters at a time)
       } else {
         clearInterval(interval);
         setIsTyping(false);
       }
-    }, 20);
+    }, 50); // Slower interval to reduce UI strain
   };
 
   const askAI = async (customQuestion?: string) => {
@@ -81,6 +102,7 @@ export default function ExpenseChat() {
 
     setIsLoading(true);
     setError(null);
+    setScrollLocked(true); // Lock scrolling during response
     
     // Add user message
     const userMessage: ChatMessage = {
@@ -112,8 +134,15 @@ export default function ExpenseChat() {
       });
 
       if (response.data.success) {
-        // Use typewriter effect for AI response
-        typeWriter(response.data.answer, aiMessage.id);
+        // Instant response with slight delay for better UX
+        setTimeout(() => {
+          setMessages(prev => prev.map(msg => 
+            msg.id === aiMessage.id 
+              ? { ...msg, answer: response.data.answer }
+              : msg
+          ));
+          setScrollLocked(false); // Unlock scrolling after response
+        }, 300);
       } else {
         throw new Error(response.data.error || 'Failed to get AI response');
       }
@@ -127,8 +156,13 @@ export default function ExpenseChat() {
           ? { ...msg, answer: `❌ Sorry, I encountered an error: ${errorMessage}. Please try again.` }
           : msg
       ));
+      setScrollLocked(false); // Unlock on error
     } finally {
       setIsLoading(false);
+      // Ensure scroll is unlocked after a delay
+      setTimeout(() => {
+        setScrollLocked(false);
+      }, 1000);
     }
   };
 
@@ -156,9 +190,9 @@ export default function ExpenseChat() {
   };
 
   return (
-    <div className="flex flex-col h-[600px] bg-white rounded-lg shadow-lg overflow-hidden">
+    <div className="flex flex-col h-[500px] bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 flex justify-between items-center">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
           <h3 className="font-semibold text-lg">FinSight AI Assistant</h3>
@@ -173,7 +207,11 @@ export default function ExpenseChat() {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+      <div 
+        ref={chatContainerRef}
+        className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50 scroll-smooth"
+        style={{ scrollBehavior: scrollLocked ? 'auto' : 'smooth' }}
+      >
         {messages.map((message, index) => (
           <div key={message.id} className="space-y-2">
             {/* User Message */}
@@ -209,18 +247,17 @@ export default function ExpenseChat() {
           </div>
         ))}
         
-        {/* Typing Indicator */}
-        {isTyping && (
+        {/* Loading Indicator - Only show when actually processing */}
+        {isLoading && !messages.some(m => m.id.includes('_ai') && !m.answer) && (
           <div className="flex justify-start">
             <div className="flex space-x-2">
               <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
                 AI
               </div>
               <div className="bg-white px-4 py-3 rounded-lg shadow-md border">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                <div className="flex items-center space-x-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-500 border-t-transparent"></div>
+                  <span className="text-sm text-gray-600">Analyzing your expenses...</span>
                 </div>
               </div>
             </div>
@@ -250,9 +287,9 @@ export default function ExpenseChat() {
       )}
 
       {/* Input Area */}
-      <div className="border-t p-4 bg-white">
+      <div className="border-t p-3 bg-white">
         {error && (
-          <div className="mb-3 p-2 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
+          <div className="mb-2 p-2 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
             ❌ {error}
           </div>
         )}
