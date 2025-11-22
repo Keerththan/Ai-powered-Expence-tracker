@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import UploadForm from "@/components/UploadForm";
-import ExpenseChat from "./ExpenseChatNew";
+import ExpenseChat from "./ExpenseChat";
 import { useExpenseStore } from "@/store/useExpenseStore";
 import { Expense } from "@/types/expense";
 
@@ -22,7 +22,7 @@ export default function DashboardPage() {
   // Fetch user expenses when authenticated
   useEffect(() => {
     if (user && !authLoading) {
-      console.log('🔄 Loading user expenses...');
+      // Load user expenses
       fetchExpenses(user.id);
     }
   }, [user, authLoading, fetchExpenses]);
@@ -46,7 +46,7 @@ export default function DashboardPage() {
       await signOut();
       router.push('/');
     } catch (error) {
-      console.error('Sign out error:', error);
+      // Handle sign out error silently
     }
   };
 
@@ -90,7 +90,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-                💰
+                <span className="text-2xl">$</span>
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Expenses</p>
@@ -104,7 +104,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-green-100 text-green-600">
-                📊
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">\n                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />\n                </svg>
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">This Month</p>
@@ -118,7 +118,9 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-purple-100 text-purple-600">
-                🧾
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Total Receipts</p>
@@ -130,7 +132,7 @@ export default function DashboardPage() {
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="p-3 rounded-full bg-orange-100 text-orange-600">
-                📈
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">\n                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />\n                </svg>
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-600">Categories</p>
@@ -146,8 +148,11 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
           {/* Upload Section */}
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-semibold mb-4 flex items-center">
-              📤 Upload Receipt
+            <h2 className="text-xl text-black font-semibold mb-4 flex items-center">
+              <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              Upload Receipt
             </h2>
             <p className="text-gray-600 mb-4">
               Upload your receipts and let AI extract expense details automatically
@@ -156,11 +161,12 @@ export default function DashboardPage() {
           </div>
 
           {/* Chat Section */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="text-black bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-xl font-semibold mb-4 flex items-center">
-              🤖 Chat With My Expenses
+              <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">    
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4z" />\n              </svg>              Chat With My Expenses
             </h2>
-            <p className="text-gray-600 mb-4">
+            <p className="text-black mb-4">
               Ask questions about your spending in natural language
             </p>
             <ExpenseChat userId={user.id} />
@@ -169,7 +175,7 @@ export default function DashboardPage() {
 
         {/* Recent Expenses */}
         <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-xl font-semibold mb-4">📋 Recent Expenses</h2>
+          <h2 className="text-xl font-semibold mb-4">Recent Expenses</h2>
           {expenseLoading && (
             <div className="text-center py-4">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -224,7 +230,11 @@ export default function DashboardPage() {
 
           {!expenseLoading && expenses.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-gray-400 text-6xl mb-4">🧾</div>
+              <div className="text-gray-400 mb-4">
+                <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
               <h3 className="text-lg font-medium text-gray-900 mb-2">No expenses yet</h3>
               <p className="text-gray-600">Upload your first receipt to get started with expense tracking!</p>
             </div>

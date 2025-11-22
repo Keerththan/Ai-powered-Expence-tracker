@@ -17,7 +17,7 @@ export class OCRService {
    */
   static async extractTextFromFile(filePath, mimeType) {
     try {
-      console.log(`🔍 Starting OCR for file: ${filePath} (${mimeType})`);
+      console.log(`Starting OCR for file: ${filePath} (${mimeType})`);
 
       if (mimeType.startsWith('image/')) {
         return await this.extractTextFromImage(filePath);
@@ -27,7 +27,7 @@ export class OCRService {
         throw new Error(`Unsupported file type: ${mimeType}`);
       }
     } catch (error) {
-      console.error('❌ OCR Error:', error);
+      console.error('OCR Error:', error);
       throw new Error(`Failed to extract text: ${error.message}`);
     }
   }
@@ -38,7 +38,7 @@ export class OCRService {
    * @returns {Promise<string>} - Extracted text
    */
   static async extractTextFromImage(imagePath) {
-    console.log('📸 Processing image with Tesseract OCR...');
+    console.log('Processing image with Tesseract OCR...');
     
     try {
       // Step 1: Preprocess image for better OCR accuracy
@@ -52,7 +52,7 @@ export class OCRService {
         .jpeg({ quality: 95 })                           // High quality output
         .toFile(processedImagePath);
 
-      console.log('✅ Image preprocessed for better OCR');
+      console.log('Image preprocessed for better OCR');
 
       // Step 2: Extract text using Tesseract
       const { data: { text, confidence } } = await Tesseract.recognize(
@@ -75,12 +75,12 @@ export class OCRService {
         fs.unlinkSync(processedImagePath);
       }
 
-      console.log(`✅ OCR completed with ${confidence}% confidence`);
+      console.log(`OCR completed with ${confidence}% confidence`);
       
       return this.cleanExtractedText(text);
       
     } catch (error) {
-      console.error('❌ Image OCR failed:', error);
+      console.error('Image OCR failed:', error);
       throw error;
     }
   }
@@ -91,18 +91,18 @@ export class OCRService {
    * @returns {Promise<string>} - Extracted text
    */
   static async extractTextFromPDF(pdfPath) {
-    console.log('📄 Extracting text from PDF...');
+    console.log('Extracting text from PDF...');
     
     try {
       const dataBuffer = fs.readFileSync(pdfPath);
       const pdfData = await pdfParse(dataBuffer);
       
-      console.log('✅ PDF text extraction completed');
+      console.log('PDF text extraction completed');
       
       return this.cleanExtractedText(pdfData.text);
       
     } catch (error) {
-      console.error('❌ PDF extraction failed:', error);
+      console.error('PDF extraction failed:', error);
       throw error;
     }
   }

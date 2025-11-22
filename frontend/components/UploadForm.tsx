@@ -72,7 +72,7 @@ export default function UploadForm({ userId }: { userId: string }) {
         setError('Upload failed. Please try again.');
       }
     } catch (error: any) {
-      console.error('Upload error:', error);
+      // Handle upload error silently
       setError(
         error.response?.data?.error || 
         error.message || 
@@ -100,7 +100,11 @@ export default function UploadForm({ userId }: { userId: string }) {
           />
           <label htmlFor="file-input" className="cursor-pointer">
             <div className="space-y-2">
-              <div className="text-4xl text-gray-400">📁</div>
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-lg flex items-center justify-center">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+              </div>
               <div>
                 <span className="text-blue-600 font-medium hover:underline">
                   Click to upload
@@ -118,7 +122,11 @@ export default function UploadForm({ userId }: { userId: string }) {
         {file && (
           <div className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
             <div className="flex items-center space-x-2">
-              <span className="text-green-600">✅</span>
+              <div className="w-6 h-6 text-green-600 mr-2">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
               <span className="text-sm text-gray-700">{file.name}</span>
               <span className="text-xs text-gray-500">
                 ({(file.size / 1024 / 1024).toFixed(2)} MB)
@@ -154,7 +162,7 @@ export default function UploadForm({ userId }: { userId: string }) {
               <span>Processing Receipt...</span>
             </div>
           ) : (
-            <>🚀 Upload & Extract</>
+            <>Upload & Extract</>
           )}
         </button>
       </form>
@@ -162,7 +170,11 @@ export default function UploadForm({ userId }: { userId: string }) {
       {/* Success Message */}
       {uploadSuccess && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center space-x-2">
-          <span className="text-green-600">✅</span>
+          <div className="w-6 h-6 text-green-600">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
           <span>Receipt uploaded and processed successfully!</span>
         </div>
       )}

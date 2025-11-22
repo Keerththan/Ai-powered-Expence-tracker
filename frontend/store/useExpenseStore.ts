@@ -33,12 +33,12 @@ export const useExpenseStore = create<ExpenseStore>((set) => ({
           loading: false, 
           error: null 
         });
-        console.log(`✅ Loaded ${response.data.count} expenses from database`);
+        console.log(`Loaded ${response.data.count} expenses from database`);
       } else {
         throw new Error('Failed to fetch expenses');
       }
     } catch (error: any) {
-      console.error('❌ Fetch expenses error:', error);
+      console.error('Fetch expenses error:', error);
       set({ 
         error: error.response?.data?.error || error.message || 'Failed to load expenses',
         loading: false 

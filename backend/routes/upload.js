@@ -45,10 +45,10 @@ router.post("/", upload.single("file"), async (req, res) => {
       return res.status(400).json({ error: "User ID is required" });
     }
 
-    console.log(`📁 Processing upload: ${file.originalname} (${file.mimetype}) for user ${user_id}`);
+    // Process the uploaded file
 
     // Step 1: Upload original file to Supabase Storage
-    console.log('☁️ Uploading to Supabase Storage...');
+    // Upload to Supabase Storage
     const fileBuffer = fs.readFileSync(file.path);
     const fileName = `${user_id}/${Date.now()}_${file.originalname}`;
     
@@ -60,14 +60,14 @@ router.post("/", upload.single("file"), async (req, res) => {
       });
 
     if (storageError) {
-      console.error("❌ Storage upload failed:", storageError);
+      console.error("Storage upload failed:", storageError);
       throw new Error("Failed to upload file to storage");
     }
 
-    console.log('✅ File uploaded to storage');
+    // File uploaded successfully, proceed with OCR
 
     // Step 2: Extract text using OCR
-    console.log('🔍 Starting OCR text extraction...');
+    // Extract text from the uploaded file
     const extractedText = await OCRService.extractTextFromFile(file.path, file.mimetype);
     
     if (!extractedText || extractedText.length < 10) {
@@ -76,13 +76,13 @@ router.post("/", upload.single("file"), async (req, res) => {
 
     // Step 3: Validate if it looks like a receipt
     if (!OCRService.validateReceiptText(extractedText)) {
-      console.warn('⚠️ Extracted text may not be from a receipt');
+      console.warn('Warning: Extracted text may not be from a receipt');
     }
 
-    console.log('✅ Text extracted:', extractedText.substring(0, 100) + '...');
+    // Text extraction completed successfully
 
     // Step 4: Analyze with Azure OpenAI
-    console.log('🤖 Analyzing text with Azure OpenAI...');
+    // Analyze extracted text with AI
     const aiResponse = await extractExpenseData(extractedText);
     
     let expenseData;
@@ -97,13 +97,9 @@ router.post("/", upload.single("file"), async (req, res) => {
         cleanedResponse = cleanedResponse.replace(/^```\s*/, '').replace(/\s*```$/, '');
       }
       
-      console.log('🧹 Cleaned AI response for parsing:', cleanedResponse.substring(0, 100) + '...');
-      
+      // Parse the cleaned response
       expenseData = JSON.parse(cleanedResponse);
-      console.log('✅ AI response parsed successfully:', expenseData);
     } catch (parseError) {
-      console.error('❌ AI response parsing failed:', parseError);
-      console.error('Raw AI response:', aiResponse);
       throw new Error("AI failed to parse expense data properly");
     }
 
@@ -125,7 +121,7 @@ router.post("/", upload.single("file"), async (req, res) => {
     };
 
     // Step 7: Save to database
-    console.log('💾 Saving to database...');
+    // Save expense to database
     const { data: inserted, error: dbError } = await supabase
       .from("expenses")
       .insert([expenseRecord])
@@ -133,7 +129,7 @@ router.post("/", upload.single("file"), async (req, res) => {
       .single();
 
     if (dbError) {
-      console.error("❌ Database save failed:", dbError);
+      console.error("Database save failed:", dbError);
       throw new Error("Failed to save expense data to database");
     }
 
@@ -146,16 +142,16 @@ router.post("/", upload.single("file"), async (req, res) => {
             fs.unlinkSync(file.path);
             console.log('🧹 Temporary file cleaned up');
           } catch (cleanupError) {
-            console.warn('⚠️ Could not clean up temporary file:', cleanupError.message);
+            console.warn('Warning: Could not clean up temporary file:', cleanupError.message);
           }
         }, 100);
       }
     } catch (cleanupError) {
-      console.warn('⚠️ File cleanup warning:', cleanupError.message);
+      // File cleanup warning ignored
     }
 
     const processingTime = Date.now() - startTime;
-    console.log(`✅ Upload completed in ${processingTime}ms`);
+    // Processing completed successfully
 
     res.json({ 
       success: true, 
@@ -166,7 +162,7 @@ router.post("/", upload.single("file"), async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Upload processing error:", error);
+    // Handle upload processing errors
     
     // Clean up file on error with better error handling
     if (req.file && fs.existsSync(req.file.path)) {
@@ -177,11 +173,11 @@ router.post("/", upload.single("file"), async (req, res) => {
             fs.unlinkSync(req.file.path);
             console.log('🧹 Error cleanup: Temporary file removed');
           } catch (cleanupError) {
-            console.warn('⚠️ Error cleanup: Could not remove temporary file:', cleanupError.message);
+            console.warn('Error cleanup: Could not remove temporary file:', cleanupError.message);
           }
         }, 100);
       } catch (cleanupError) {
-        console.warn('⚠️ Error cleanup warning:', cleanupError.message);
+        console.warn('Error cleanup warning:', cleanupError.message);
       }
     }
 

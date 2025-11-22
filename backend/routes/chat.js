@@ -79,8 +79,7 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Question is required" });
     }
 
-    console.log(`🤖 Processing chat question for user: ${user_id}`);
-    console.log(`❓ Question: ${question}`);
+    // Process chat question for user
 
     // Fetch user's expense data
     const { data: expenses, error: fetchError } = await supabase
@@ -90,14 +89,13 @@ router.post("/", async (req, res) => {
       .order("created_at", { ascending: false });
 
     if (fetchError) {
-      console.error("❌ Error fetching expenses:", fetchError);
       throw fetchError;
     }
 
     // Analyze expense data
     const analysis = analyzeExpenses(expenses);
     
-    console.log(`📊 Analysis: ${analysis.totalCount} expenses, total: $${analysis.totalAmount}`);
+    // Analyze expense data for AI context
 
     // Create enhanced AI prompt
     const systemPrompt = `You are FinSight AI, an intelligent financial assistant helping users understand their spending patterns. 
@@ -138,8 +136,6 @@ Please analyze the expense data and provide a helpful response to the user's que
     });
 
     const aiAnswer = result.choices[0].message.content;
-    
-    console.log(`✅ AI response generated: ${aiAnswer.substring(0, 100)}...`);
 
     res.json({ 
       success: true,
@@ -149,7 +145,6 @@ Please analyze the expense data and provide a helpful response to the user's que
     });
 
   } catch (error) {
-    console.error("❌ Chat processing error:", error);
     res.status(500).json({ 
       error: error.message || "Failed to process chat request",
       details: "Please try again or rephrase your question"

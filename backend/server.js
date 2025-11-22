@@ -24,15 +24,9 @@ app.use("/api/upload", uploadRoute);
 app.use("/api/chat", chatRoute);
 app.use("/api/expenses", expensesRoute);
 
-// Health check endpoint
-app.get("/health", (req, res) => {
-  res.json({ status: "FinSight Backend is running!", timestamp: new Date().toISOString() });
-});
-
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: "Something went wrong!" });
+  res.status(500).json({ error: "Internal server error" });
 });
 
 // 404 handler - catch all unmatched routes
@@ -45,8 +39,7 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 FinSight Backend Server running on port ${PORT}`);
-  console.log(`📋 Health check: http://localhost:${PORT}/health`);
+  // FinSight Backend Server started successfully
 });
 
 export default app;

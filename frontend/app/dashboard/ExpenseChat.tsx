@@ -1,10 +1,13 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { useAuthStore } from "@/store/useAuthStore";
 import { ChatMessage } from "@/types/expense";
 
-export default function ExpenseChat() {
+interface ExpenseChatProps {
+  userId: string;
+}
+
+export default function ExpenseChat({ userId }: ExpenseChatProps) {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -14,7 +17,6 @@ export default function ExpenseChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
-  const { user } = useAuthStore();
 
   const scrollToBottom = () => {
     // Only scroll if not locked and user is near bottom
@@ -49,7 +51,7 @@ export default function ExpenseChat() {
       const welcomeMessage: ChatMessage = {
         id: "welcome_" + Date.now(),
         question: "",
-        answer: "👋 Hello! I'm your FinSight AI assistant. I can help you analyze your expenses and answer questions about your spending. What would you like to know?",
+        answer: "Hello! I'm your FinSight AI assistant. I can help you analyze your expenses and answer questions about your spending. What would you like to know?",
         timestamp: new Date().toISOString(),
         isBot: true
       };
@@ -57,16 +59,16 @@ export default function ExpenseChat() {
     }
   }, []);
 
-  // Enhanced suggested questions with emojis
+  // Enhanced suggested questions
   const suggestedQuestions = [
-    "💰 How much did I spend this month?",
-    "📊 What's my highest expense category?",
-    "🥘 Show me all food expenses",
-    "📅 How much did I spend last week?",
-    "📈 What's my average daily spending?",
-    "🏪 Which stores do I shop at most?",
-    "💳 Show me my largest expenses",
-    "📋 Give me a spending summary"
+    "How much did I spend this month?",
+    "What's my highest expense category?",
+    "Show me all food expenses",
+    "How much did I spend last week?",
+    "What's my average daily spending?",
+    "Which stores do I shop at most?",
+    "Show me my largest expenses",
+    "Give me a spending summary"
   ];
 
   const typeWriter = (text: string, messageId: string) => {
@@ -95,7 +97,7 @@ export default function ExpenseChat() {
       return;
     }
 
-    if (!user) {
+    if (!userId) {
       setError("Please log in to ask questions");
       return;
     }
@@ -127,7 +129,7 @@ export default function ExpenseChat() {
 
     try {
       const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/chat`, {
-        user_id: user.id,
+        user_id: userId,
         question: questionToAsk,
       }, {
         timeout: 30000
@@ -147,13 +149,13 @@ export default function ExpenseChat() {
         throw new Error(response.data.error || 'Failed to get AI response');
       }
     } catch (error: any) {
-      console.error('Chat error:', error);
+      // Handle chat error
       const errorMessage = error.response?.data?.error || error.message || 'Failed to get AI response';
       
       // Update the AI message with error
       setMessages(prev => prev.map(msg => 
         msg.id === aiMessage.id 
-          ? { ...msg, answer: `❌ Sorry, I encountered an error: ${errorMessage}. Please try again.` }
+          ? { ...msg, answer: `Sorry, I encountered an error: ${errorMessage}. Please try again.` }
           : msg
       ));
       setScrollLocked(false); // Unlock on error
@@ -181,7 +183,7 @@ export default function ExpenseChat() {
       const welcomeMessage: ChatMessage = {
         id: "welcome_" + Date.now(),
         question: "",
-        answer: "👋 Chat cleared! What would you like to know about your expenses?",
+        answer: "Chat cleared! What would you like to know about your expenses?",
         timestamp: new Date().toISOString(),
         isBot: true
       };
@@ -202,7 +204,7 @@ export default function ExpenseChat() {
           className="text-white/80 hover:text-white transition-colors text-sm"
           title="Clear chat"
         >
-          🗑️ Clear
+          Clear
         </button>
       </div>
 
@@ -270,7 +272,7 @@ export default function ExpenseChat() {
       {/* Suggested Questions */}
       {messages.length <= 1 && (
         <div className="p-4 border-t bg-white">
-          <p className="text-sm text-gray-600 mb-3 font-medium">💡 Try asking:</p>
+          <p className="text-sm text-gray-600 mb-3 font-medium">Try asking:</p>
           <div className="grid grid-cols-2 gap-2">
             {suggestedQuestions.slice(0, 6).map((suggestion, index) => (
               <button
@@ -290,7 +292,7 @@ export default function ExpenseChat() {
       <div className="border-t p-3 bg-white">
         {error && (
           <div className="mb-2 p-2 bg-red-50 border border-red-200 text-red-700 rounded-md text-sm">
-            ❌ {error}
+            Error: {error}
           </div>
         )}
         
@@ -325,14 +327,13 @@ export default function ExpenseChat() {
             ) : (
               <>
                 <span>Send</span>
-                <span>🚀</span>
               </>
             )}
           </button>
         </div>
         
         <div className="mt-2 text-xs text-gray-500">
-          💡 Ask me about spending patterns, categories, amounts, or specific time periods
+          Ask me about spending patterns, categories, amounts, or specific time periods
         </div>
       </div>
     </div>

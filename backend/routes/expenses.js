@@ -13,7 +13,7 @@ router.get("/:userId", async (req, res) => {
       return res.status(400).json({ error: "User ID is required" });
     }
 
-    console.log(`📋 Fetching expenses for user: ${userId}`);
+    console.log(`Fetching expenses for user: ${userId}`);
 
     // Fetch user's expenses from database
     const { data: expenses, error } = await supabase
@@ -23,11 +23,11 @@ router.get("/:userId", async (req, res) => {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("❌ Database fetch error:", error);
+      console.error("Database fetch error:", error);
       throw error;
     }
 
-    console.log(`✅ Found ${expenses.length} expenses for user`);
+    console.log(`Found ${expenses.length} expenses for user`);
 
     res.json({
       success: true,
@@ -37,7 +37,7 @@ router.get("/:userId", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Fetch expenses error:", error);
+    console.error("Fetch expenses error:", error);
     res.status(500).json({
       error: error.message || "Failed to fetch expenses",
       details: "Please try again later"
@@ -54,7 +54,7 @@ router.get("/:userId/summary", async (req, res) => {
       return res.status(400).json({ error: "User ID is required" });
     }
 
-    console.log(`📊 Generating expense summary for user: ${userId}`);
+    console.log(`Generating expense summary for user: ${userId}`);
 
     // Fetch user's expenses for summary
     const { data: expenses, error } = await supabase
@@ -63,7 +63,7 @@ router.get("/:userId/summary", async (req, res) => {
       .eq("user_id", userId);
 
     if (error) {
-      console.error("❌ Summary fetch error:", error);
+      console.error("Summary fetch error:", error);
       throw error;
     }
 
@@ -97,7 +97,7 @@ router.get("/:userId/summary", async (req, res) => {
       averageAmount: expenseCount > 0 ? totalAmount / expenseCount : 0
     };
 
-    console.log(`✅ Summary generated: ${expenseCount} expenses, total: ${totalAmount}`);
+    console.log(`Summary generated: ${expenseCount} expenses, total: ${totalAmount}`);
 
     res.json({
       success: true,
@@ -106,7 +106,7 @@ router.get("/:userId/summary", async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Summary generation error:", error);
+    console.error("Summary generation error:", error);
     res.status(500).json({
       error: error.message || "Failed to generate summary",
       details: "Please try again later"
