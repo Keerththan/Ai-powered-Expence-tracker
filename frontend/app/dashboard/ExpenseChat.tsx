@@ -51,7 +51,7 @@ export default function ExpenseChat({ userId }: ExpenseChatProps) {
       const welcomeMessage: ChatMessage = {
         id: "welcome_" + Date.now(),
         question: "",
-        answer: "Hello! I'm your FinSight AI assistant. I can help you analyze your expenses and answer questions about your spending. What would you like to know?",
+        answer: "Welcome to FinSight AI Assistant! \n\nI'm here to help you understand your spending patterns and manage your expenses more effectively. \n\nYou can ask me about:\n• Monthly and weekly spending totals\n• Expense categories and trends\n• Specific vendor purchases\n• Spending analytics and insights\n\nWhat would you like to explore first?",
         timestamp: new Date().toISOString(),
         isBot: true
       };
@@ -183,7 +183,7 @@ export default function ExpenseChat({ userId }: ExpenseChatProps) {
       const welcomeMessage: ChatMessage = {
         id: "welcome_" + Date.now(),
         question: "",
-        answer: "Chat cleared! What would you like to know about your expenses?",
+        answer: "Chat cleared! \n\nI'm ready to help you analyze your expenses again. What would you like to know?",
         timestamp: new Date().toISOString(),
         isBot: true
       };
@@ -194,7 +194,7 @@ export default function ExpenseChat({ userId }: ExpenseChatProps) {
   return (
     <div className="flex flex-col h-[500px] bg-white rounded-lg shadow-lg overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-3 flex justify-between items-center">
+      <div className="bg-blue-600 text-white p-3 flex justify-between items-center">
         <div className="flex items-center space-x-2">
           <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
           <h3 className="font-semibold text-lg">FinSight AI Assistant</h3>
@@ -219,11 +219,19 @@ export default function ExpenseChat({ userId }: ExpenseChatProps) {
             {/* User Message */}
             {message.question && (
               <div className="flex justify-end">
-                <div className="bg-blue-600 text-white px-4 py-3 rounded-lg max-w-[80%] shadow-md">
-                  <p className="text-sm">{message.question}</p>
-                  <span className="text-xs text-blue-100 block mt-1">
-                    {new Date(message.timestamp).toLocaleTimeString()}
-                  </span>
+                <div className="bg-blue-600 text-white px-5 py-3 rounded-lg max-w-[75%] shadow-sm">
+                  <p className="text-sm leading-relaxed">{message.question}</p>
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-blue-500">
+                    <span className="text-xs text-blue-100">
+                      {new Date(message.timestamp).toLocaleTimeString()}
+                    </span>
+                    <div className="flex items-center space-x-1 text-xs text-blue-100">
+                      <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                      </svg>
+                      <span>You</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -231,17 +239,94 @@ export default function ExpenseChat({ userId }: ExpenseChatProps) {
             {/* AI Response */}
             {message.answer && (
               <div className="flex justify-start">
-                <div className="flex space-x-2 max-w-[80%]">
-                  <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0">
+                <div className="flex space-x-3 max-w-[85%]">
+                  <div className="w-9 h-9 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm shrink-0 shadow-sm">
                     AI
                   </div>
-                  <div className="bg-white px-4 py-3 rounded-lg shadow-md border">
-                    <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed">
-                      {message.answer}
+                  <div className="bg-white px-5 py-4 rounded-lg shadow-sm border border-gray-100">
+                    <div className="text-sm text-gray-800 leading-relaxed">
+                      {/* Format the response with better structure */}
+                      {message.answer.split('\n').map((line, lineIndex) => {
+                        let trimmedLine = line.trim();
+                        if (!trimmedLine) return <br key={lineIndex} />;
+                        
+                        // Clean up markdown formatting
+                        // Remove multiple asterisks and format bold text
+                        trimmedLine = trimmedLine
+                          .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>') // Bold text
+                          .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>') // Italic text
+                          .replace(/#{1,6}\s*(.*)/g, '<strong class="font-semibold text-gray-900 text-base">$1</strong>') // Headers
+                          .replace(/`(.*?)`/g, '<code class="bg-gray-100 px-1 py-0.5 rounded text-xs font-mono">$1</code>'); // Code
+                        
+                        // Handle bullet points
+                        if (line.trim().startsWith('•') || line.trim().startsWith('-')) {
+                          const content = trimmedLine.substring(1).trim();
+                          const cleanContent = content
+                            .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                            .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
+                          return (
+                            <div key={lineIndex} className="flex items-start space-x-2 my-1">
+                              <span className="text-blue-500 font-bold mt-0.5">•</span>
+                              <span dangerouslySetInnerHTML={{ __html: cleanContent }} />
+                            </div>
+                          );
+                        }
+                        
+                        // Handle numbered lists
+                        if (/^\d+\./.test(line.trim())) {
+                          const match = trimmedLine.match(/^(\d+\.\s*)(.*)/);
+                          if (match) {
+                            const cleanContent = match[2]
+                              .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900">$1</strong>')
+                              .replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
+                            return (
+                              <div key={lineIndex} className="flex items-start space-x-2 my-1">
+                                <span className="text-blue-500 font-semibold">{match[1]}</span>
+                                <span dangerouslySetInnerHTML={{ __html: cleanContent }} />
+                              </div>
+                            );
+                          }
+                        }
+                        
+                        // Handle headings (text with colons or standalone bold text)
+                        if (trimmedLine.includes(':') && trimmedLine.length < 60) {
+                          const cleanHeading = trimmedLine
+                            .replace(/\*\*(.*?)\*\*/g, '$1') // Remove asterisks from headings
+                            .replace(/\*(.*?)\*/g, '$1');
+                          return (
+                            <div key={lineIndex} className="font-semibold text-gray-900 mt-3 mb-1 first:mt-0">
+                              {cleanHeading}
+                            </div>
+                          );
+                        }
+                        
+                        // Handle monetary values and clean formatting
+                        let formattedLine = trimmedLine
+                          // Handle dollar and rupee amounts
+                          .replace(/(\$[\d,]+(?:\.\d{2})?|\bRs?\.?\s*[\d,]+(?:\.\d{2})?)/g, 
+                            '<span class="font-semibold text-green-600">$1</span>')
+                          // Clean up any remaining stray asterisks
+                          .replace(/\*+/g, '');
+                        
+                        // Regular paragraph
+                        return (
+                          <div key={lineIndex} className="mb-2 last:mb-0">
+                            <span dangerouslySetInnerHTML={{ __html: formattedLine }} />
+                          </div>
+                        );
+                      })}
                     </div>
-                    <span className="text-xs text-gray-500 block mt-2">
-                      {new Date(message.timestamp).toLocaleTimeString()}
-                    </span>
+                    <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
+                      <span className="text-xs text-gray-400">
+                        {new Date(message.timestamp).toLocaleTimeString()}
+                      </span>
+                      <div className="flex items-center space-x-1 text-xs text-gray-400">
+                        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        <span>AI Response</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -252,15 +337,20 @@ export default function ExpenseChat({ userId }: ExpenseChatProps) {
         {/* Loading Indicator - Only show when actually processing */}
         {isLoading && !messages.some(m => m.id.includes('_ai') && !m.answer) && (
           <div className="flex justify-start">
-            <div className="flex space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+            <div className="flex space-x-3">
+              <div className="w-9 h-9 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-sm">
                 AI
               </div>
-              <div className="bg-white px-4 py-3 rounded-lg shadow-md border">
-                <div className="flex items-center space-x-2">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-500 border-t-transparent"></div>
+              <div className="bg-white px-5 py-4 rounded-lg shadow-sm border border-gray-100">
+                <div className="flex items-center space-x-3">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '0ms'}}></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '150ms'}}></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style={{animationDelay: '300ms'}}></div>
+                  </div>
                   <span className="text-sm text-gray-600">Analyzing your expenses...</span>
                 </div>
+                <div className="text-xs text-gray-400 mt-2">This may take a few seconds</div>
               </div>
             </div>
           </div>
@@ -271,19 +361,30 @@ export default function ExpenseChat({ userId }: ExpenseChatProps) {
 
       {/* Suggested Questions */}
       {messages.length <= 1 && (
-        <div className="p-4 border-t bg-white">
-          <p className="text-sm text-gray-600 mb-3 font-medium">Try asking:</p>
-          <div className="grid grid-cols-2 gap-2">
+        <div className="p-4 border-t bg-blue-50">
+          <div className="flex items-center space-x-2 mb-3">
+            <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+            </svg>
+            <p className="text-sm text-gray-700 font-medium">Quick questions to get you started:</p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {suggestedQuestions.slice(0, 6).map((suggestion, index) => (
               <button
                 key={index}
-                onClick={() => askAI(suggestion.split(' ').slice(1).join(' '))}
-                className="text-left text-xs p-2 bg-blue-50 hover:bg-blue-100 rounded-md transition-colors text-blue-700 border border-blue-200"
+                onClick={() => askAI(suggestion)}
+                className="text-left text-sm p-3 bg-white hover:bg-blue-50 rounded-lg transition-all duration-200 text-gray-700 border border-gray-200 hover:border-blue-300 hover:shadow-sm group"
                 disabled={isLoading}
               >
-                {suggestion}
+                <div className="flex items-center space-x-2">
+                  <span className="text-blue-500 group-hover:text-blue-600 transition-colors">▶</span>
+                  <span className="group-hover:text-gray-900 transition-colors">{suggestion}</span>
+                </div>
               </button>
             ))}
+          </div>
+          <div className="mt-3 text-xs text-gray-500 text-center">
+            Click any question above or type your own below
           </div>
         </div>
       )}
@@ -305,7 +406,7 @@ export default function ExpenseChat({ userId }: ExpenseChatProps) {
               setError(null);
             }}
             onKeyDown={handleKeyPress}
-            placeholder="Ask me about your expenses... (Press Enter to send)"
+            placeholder="Ask me about your expenses..."
             className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             rows={2}
             disabled={isLoading}

@@ -56,7 +56,7 @@ export default function LoginForm() {
             </div>
           )}
           
-          <div className="space-y-4">
+          <div className="space-y-4 text-black">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/store/useAuthStore";
 import UploadForm from "@/components/UploadForm";
 import ExpenseChat from "./ExpenseChat";
+import ExpenseCharts from "@/components/ExpenseCharts";
 import { useExpenseStore } from "@/store/useExpenseStore";
 import { Expense } from "@/types/expense";
 
@@ -172,6 +173,17 @@ export default function DashboardPage() {
             <ExpenseChat userId={user.id} />
           </div>
         </div>
+
+        {/* Expense Analytics Charts */}
+        {expenses.length > 0 && (
+          <div className="mb-8">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Expense Analytics</h2>
+              <p className="text-gray-600">Visual insights into your spending patterns and trends</p>
+            </div>
+            <ExpenseCharts expenses={expenses} />
+          </div>
+        )}
 
         {/* Recent Expenses */}
         <div className="bg-white rounded-lg shadow-lg p-6">
